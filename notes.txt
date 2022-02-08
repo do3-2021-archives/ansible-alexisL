@@ -1,0 +1,35 @@
+ansible -m ping all
+ansible all -a "ip a"
+ssh
+
+ansible -m setup -a 'filter=*addr*' debian
+
+ansible -m dnf -a "name=httpd state=latest" rocky-0
+ansible -m apt -a "name=apache2 state=latest" debian-0
+
+
+
+Listen {{ansible_default_ipv4['address']}}:8080
+
+<IfModule ssl_module>
+Listen {{ansible_default_ipv4[['address']]}}:443
+</IfModule>
+
+<IfModule mod_gnults.c>
+Listen {{ansible_default_ipv4[['address']]}}:443
+</IfModule>
+
+src: ports.j2
+dest: /etc/apache2/ports.conf
+
+
+ansible_connection: ansible.netcommon.network_cli
+ansible_network_os: arista.eos.eos
+ansible_user: aaa
+ansible_password: mdp
+ansible_become: yes
+ansible_become_method: enable
+
+
+never : ne lance jamais
+always : toujours lancer
