@@ -1,0 +1,89 @@
+---
+
+- hosts: [debian, rocky]
+  tasks:
+
+    - name: Installer Apache & Php7
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop: 
+        - apache2
+        - libapache2-mod-php7.4
+      when: ansible_facts["distribution"] == "Debian"
+
+    - name: Démarrer le service Apache
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true
+      when: ansible_facts["distribution"] == "Debian"
+
+    - name: Copier le fichier phpinfo
+      ansible.builtin.copy:
+        src: info.php
+        dest: /var/www/html/index.php
+        owner: www-data
+        group: www-data
+        mode: 0664
+      when: ansible_facts["distribution"] == "Debian"
+      
+
+    - name: Reload
+      ansible.builtin.service:
+        name: apache2
+        state: reloaded
+      tags:
+      - relance
+      when: ansible_facts["distribution"] == "Debian"
+        
+    - name: ip interne
+      ansible.builtin.template: 
+        src: ports.j2
+        dest: /etc/apache2/ports.conf
+      notify: Restart apache
+      tags:
+      - ports
+      when: ansible_facts["distribution"] == "Debian"
+
+    - name: Installer Apache & php
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - httpd
+        - php
+      when: ansible_facts["distribution"] == "Rocky"
+
+    - name: Démarrer le service Apache
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+      when: ansible_facts["distribution"] == "Rocky"
+
+    - name: Copier le fichier phpinfo
+      ansible.builtin.copy:
+        src: info.php
+        dest: /var/www/html/index.php
+        owner: apache
+        group: apache
+        mode: 0664
+      when: ansible_facts["distribution"] == "Rocky"
+
+    - name: Reload
+      ansible.builtin.service:
+        name: httpd
+        state: reloaded
+      tags:
+      - relance
+      when: ansible_facts["distribution"] == "Rocky"
+
+  handlers:
+    - name: Restart apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+

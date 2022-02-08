@@ -1,0 +1,5 @@
+- hosts: [debian, rocky]
+  vars_files:
+    - vars/ports.yaml
+  roles:
+    - { role: geerlingguy.firewall }

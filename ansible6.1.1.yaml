@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Docker container
+      docker_container:
+        name: debianiut
+        image: registry.iutbeziers.fr/debianiut
+        published_ports: 80
